@@ -27,17 +27,20 @@ async function connect(callback?: (error?: Error) => any) {
 };
 
 async function start() {
-  // await connect(() => console.log("MongoDb Connected"));
+  await connect(() => console.log("MongoDb Connected"));
   for (let i = 1; i < 556; i++) {
     try {
       const url = `https://www.nettruyenmoi.com/tim-truyen?page=${i}`;
 
       await getTruyen(url, async (obj) => {
-        // const truyen = new TruyenModel(obj);
-        // await truyen.save();
-        const truyens = collection(db, 'truyens')
-        await addDoc(truyens, obj);
-        console.log(`${obj.title}: OK`);
+        const truyenInDb = await TruyenModel.findOne({ slug: obj.slug });
+        if (!truyenInDb) {
+          const truyen = new TruyenModel(obj);
+          await truyen.save();
+          // const truyens = collection(db, 'truyens')
+          // await addDoc(truyens, obj);
+          console.log(`${obj.title}: OK`);
+        }
       });
     } catch (e) {
       console.log(e);

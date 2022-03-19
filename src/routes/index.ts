@@ -1,18 +1,19 @@
 import express from 'express'
 import { truyenController } from '../controllers';
-import { updateCover } from '../utils/bot';
+import { start } from '../utils/bot';
 const router = express.Router();
 
 router
   .route('/page/:pageNumber')
   .get(truyenController.getTruyensByPage);
 
-// router
-//   .route('/update')
-//   .get((_req, res) => {
-//     updateCover();
-//     res.send("OK")
-//   })
+router
+  .route('/start')
+  .get((_req, res) => {
+    start();
+    res.send("OK")
+  })
+
 router
   .route('/count')
   .get(truyenController.getCount);

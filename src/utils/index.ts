@@ -8,7 +8,6 @@ async function getTruyen(pageUrl: Url, fn?: (obj: Truyen) => any) {
   const listItem = $(
     '#ctl00_divCenter > div.Module.Module-170 > div > div.items > div > div.item'
   );
-  const result: Array<Truyen> = [];
   for await (const e of listItem) {
     const image = cheerioModule.load(e);
     const urlTruyen = image('a').attr('href');
@@ -17,10 +16,8 @@ async function getTruyen(pageUrl: Url, fn?: (obj: Truyen) => any) {
       if (fn) {
         await fn(obj);
       }
-      result.push(obj);
     }
   }
-  return result;
 }
 
 async function urlToDoc(url: string): Promise<string> {
