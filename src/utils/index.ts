@@ -23,7 +23,7 @@ async function getTruyen(pageUrl: Url, fn?: (obj: Truyen) => any) {
   return result;
 }
 
-async function urlToDoc(url: string) {
+async function urlToDoc(url: string): Promise<string> {
   const response = await axios.get<string>(url, {
     responseType: 'document',
     headers: {
@@ -84,9 +84,25 @@ async function slugToObj(
   beforeDownloadChapters?: (
     truyenPartial: Omit<Truyen, 'chapters'>
   ) => void | Promise<void>
-) {
+): Promise<Truyen> {
   const url = `http://www.nettruyenmoi.com/truyen-tranh/${slug}`;
   return await urlToObj(url, beforeDownloadChapters);
+}
+
+async function imageUrlToBase64(url: Url) {
+  return await getBase64(url);
+}
+
+async function getBase64(url: Url): Promise<string> {
+  const response = await axios
+    .get(url, {
+      responseType: 'arraybuffer',
+      headers: {
+        'Referer': 'http://www.nettruyengo.com/',
+        'Connection': 'keep-alive'
+      }
+    });
+  return Buffer.from(response.data, 'binary').toString('base64');
 }
 
 async function getChapters(
@@ -134,4 +150,4 @@ const selector = {
   cover: '#item-detail > div.detail-info > div > div.col-xs-4.col-image > img',
 };
 
-export { getTruyen, urlToObj, slugToObj, selector, urlToDoc };
+export { getTruyen, urlToObj, slugToObj, selector, urlToDoc, imageUrlToBase64 };
