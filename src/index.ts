@@ -6,7 +6,7 @@ import cors from 'cors';
 import * as db from './config/db';
 import routes from './routes';
 
-const PORT = 4000;
+const PORT = 443;
 
 const app = express();
 app.use(express.static(path.join(__dirname, '../public')));
