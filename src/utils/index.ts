@@ -34,7 +34,12 @@ async function urlToDoc(url: string) {
   return response.data;
 }
 
-async function urlToObj(url: string): Promise<Truyen> {
+async function urlToObj(
+  url: string,
+  beforeDownloadChapters?: (
+    truyenPartial: Omit<Truyen, 'chapters'>
+  ) => void | Promise<void>
+): Promise<Truyen> {
   const html = await urlToDoc(url);
   const $ = cheerioModule.load(html);
   const title = $(selector.title).text();
@@ -44,6 +49,20 @@ async function urlToObj(url: string): Promise<Truyen> {
   const kind = $(selector.kind).text().split('\n')[0].split(' - ');
   const slug = url.split('/').pop();
   const cover = `http:${$(selector.cover).attr('src')!}`;
+  const detail = $(selector.detail).text();
+  if (beforeDownloadChapters) {
+    await beforeDownloadChapters({
+      url,
+      title,
+      author,
+      otherName,
+      status,
+      kind,
+      slug,
+      detail,
+      cover,
+    });
+  }
   const chapterElements = $(selector.chapter);
   const chapters = await getChapters(chapterElements);
   return {
@@ -54,9 +73,20 @@ async function urlToObj(url: string): Promise<Truyen> {
     status,
     kind,
     slug,
+    detail,
     cover,
     chapters,
   };
+}
+
+async function slugToObj(
+  slug: string,
+  beforeDownloadChapters?: (
+    truyenPartial: Omit<Truyen, 'chapters'>
+  ) => void | Promise<void>
+) {
+  const url = `http://www.nettruyenmoi.com/truyen-tranh/${slug}`;
+  return await urlToObj(url, beforeDownloadChapters);
 }
 
 async function getChapters(
@@ -97,10 +127,11 @@ const selector = {
     '#item-detail > div.detail-info > div > div.col-xs-8.col-info > ul > li.othername.row > h2',
   status:
     '#item-detail > div.detail-info > div > div.col-xs-8.col-info > ul > li.status.row > p.col-xs-8',
+  detail: '.detail-content > p:nth-child(2)',
   kind: '#item-detail > div.detail-info > div > div.col-xs-8.col-info > ul > li.kind.row > p.col-xs-8',
   chapter: '#nt_listchapter > nav > ul > li.row:not(li.heading)',
   chapterPage: '.page-chapter',
   cover: '#item-detail > div.detail-info > div > div.col-xs-4.col-image > img',
 };
 
-export { getTruyen, urlToObj };
+export { getTruyen, urlToObj, slugToObj, selector, urlToDoc };

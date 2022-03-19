@@ -1,9 +1,10 @@
-import { getTruyen } from '.';
+import { getTruyen, selector, urlToDoc } from '.';
 import { Truyen, TruyenModel } from '../models';
 
 import mongoose from 'mongoose';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import cheerioModule from 'cheerio';
 
 const DB_ACCOUNT = 'admin';
 const DB_PASSWORD = 'quangha2239';
@@ -44,8 +45,29 @@ async function start() {
   }
 }
 
+async function updateCover() {
+  const truyens = await TruyenModel.find({}).select("url cover");
+  for await (const truyen of truyens) {
+    if (!truyen.cover || !truyen.detail) {
+      const html = await urlToDoc(truyen.url);
+      const $ = cheerioModule.load(html);
+      if (!truyen.cover) {
+        const cover = `http:${$(selector.cover).attr('src')!}`;
+        truyen.cover = cover;
+        await truyen.save();
+      }
+      if (!truyen.detail) {
+        const detail = $(selector.detail).text();
+        truyen.detail = detail;
+        await truyen.save();
+      }
+    }
+  }
+}
+
 export {
-  start
+  start,
+  updateCover
 }
 
 

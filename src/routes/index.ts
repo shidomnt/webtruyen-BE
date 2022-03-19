@@ -1,16 +1,28 @@
 import express from 'express'
-import { getDocs, collection } from 'firebase/firestore';
-import { start } from '../utils/bot';
-import { db } from '../config/firebase';
+import { truyenController } from '../controllers';
+import { updateCover } from '../utils/bot';
 const router = express.Router();
 
-const url = 'https://www.nettruyenmoi.com/tim-truyen?page=1';
+router
+  .route('/page/:pageNumber')
+  .get(truyenController.getTruyensByPage);
+
+// router
+//   .route('/update')
+//   .get((_req, res) => {
+//     updateCover();
+//     res.send("OK")
+//   })
+router
+  .route('/count')
+  .get(truyenController.getCount);
 
 router
-  .route('/')
-  .get(async (_req, res) => {
-    await start();
-    res.json("OK");
-  });
+  .route('/truyen-tranh/:slug')
+  .get(truyenController.getTruyen);
+
+router
+  .route('/truyen-tranh/:slug/:chapNumber')
+  .get(truyenController.getChapter)
 
 export default router;

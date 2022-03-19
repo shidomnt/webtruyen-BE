@@ -19,6 +19,7 @@ interface Truyen {
   kind: Array<string>,
   slug?: string,
   chapters: Array<Chapter>,
+  detail?: string,
   cover: Url,
 }
 
@@ -37,6 +38,7 @@ const SchemaTruyen = new Schema<Truyen>({
   kind: [String],
   slug: String,
   cover: String,
+  detail: String,
   chapters: [SchemaChapter]
 })
 

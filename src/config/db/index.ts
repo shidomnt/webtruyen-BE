@@ -1,9 +1,7 @@
 import mongoose from 'mongoose';
 
-const DB_ACCOUNT = 'admin';
-const DB_PASSWORD = 'quangha2239';
 
-const DB_URL = `mongodb+srv://${DB_ACCOUNT}:${DB_PASSWORD}@cluster0.z3qdj.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+const DB_URL = `mongodb+srv://${process.env.DB_ACCOUNT}:${process.env.DB_PASSWORD}@cluster0.z3qdj.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 
 const connect = async (callback: (error?: Error) => any) => {
   try {
