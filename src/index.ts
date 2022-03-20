@@ -13,7 +13,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 app.use(
   cors({
-    origin: '*',
+    origin: 'https://elastic-kalam-a74ca7.netlify.app',
   })
 );
 

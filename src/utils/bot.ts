@@ -68,9 +68,9 @@ async function updateCover() {
   }
 }
 
+start();
+
 export {
   start,
   updateCover
 }
-
-

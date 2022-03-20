@@ -7,12 +7,12 @@ router
   .route('/page/:pageNumber')
   .get(truyenController.getTruyensByPage);
 
-router
-  .route('/start')
-  .get((_req, res) => {
-    start();
-    res.send("OK")
-  })
+// router
+//   .route('/start')
+//   .get((_req, res) => {
+//     start();
+//     res.send("OK")
+//   })
 
 router
   .route('/count')
