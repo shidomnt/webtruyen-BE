@@ -1,67 +1,81 @@
-import { Request, Response } from 'express';
-import { TruyenModel } from '../models';
-import { imageUrlToBase64, slugToObj } from '../utils';
+import { Request, Response } from 'express'
+import { TruyenModel } from '../models'
+import { imageUrlToBase64, removeVietnameseTones, slugToObj } from '../utils'
 
-const truyenPerPage = 8;
+const truyenPerPage = 8
 
 const truyenController = {
   getTruyensByPage: async (req: Request, res: Response) => {
-    let { pageNumber } = req.params;
+    let { pageNumber } = req.params
     const truyens = await TruyenModel.find({})
       .skip(
         truyenPerPage *
           (Number(pageNumber) - 1 >= 1 ? Number(pageNumber) - 1 : 0)
       )
       .limit(truyenPerPage)
-      .select('url slug title cover');
-    res.json(truyens);
+      .select('url slug title cover')
+    res.json(truyens)
   },
 
   getTruyen: async (req: Request, res: Response) => {
-    const { slug } = req.params;
+    const { slug } = req.params
     const truyen = await TruyenModel.findOne({ slug }).select(
       '-chapters.images'
-    );
+    )
     if (!truyen) {
       const newTruyen = new TruyenModel(
         await slugToObj(slug, async (truyenPartial) => {
-          const truyenPart = new TruyenModel(truyenPartial);
-          await truyenPart.save();
-          res.json(truyenPartial);
+          const truyenPart = new TruyenModel(truyenPartial)
+          await truyenPart.save()
+          res.json(truyenPartial)
         })
-      );
+      )
       await TruyenModel.findOneAndUpdate(
         { slug },
         { chapters: newTruyen.chapters }
-      );
+      )
     } else {
-      res.json(truyen);
+      res.json(truyen)
     }
   },
 
+  timKiemTruyen: async (req: Request, res: Response) => {
+    const { title } = req.query;
+    let truyens = await TruyenModel.find({}).select('title slug cover');
+    if (typeof title === 'string') {
+      truyens = truyens
+        .filter((truyen) =>
+          removeVietnameseTones(truyen.title).includes(
+            removeVietnameseTones(title)
+          )
+        );
+    }
+    res.json(truyens.slice(0, 3));
+  },
+
   getChapter: async (req: Request, res: Response) => {
-    const { slug, chapNumber } = req.params;
-    const truyen = await TruyenModel.findOne({ slug }).select('chapters');
+    const { slug, chapNumber } = req.params
+    const truyen = await TruyenModel.findOne({ slug }).select('chapters')
     const targetChapter = truyen?.chapters?.find(
       (chapter) => chapter.chapNumber === Number(chapNumber)
-    );
+    )
     if (targetChapter?.images) {
       targetChapter.images = await Promise.all(
         targetChapter?.images.map(
           async (image) =>
             `data:image/jpg;base64,${await imageUrlToBase64(image)}`
         )
-      );
+      )
     }
-    res.json(targetChapter || {});
+    res.json(targetChapter || {})
   },
 
   getCount: async (_req: Request, res: Response) => {
-    const result = await TruyenModel.estimatedDocumentCount();
+    const result = await TruyenModel.estimatedDocumentCount()
     res.json({
       total: Math.ceil(result / truyenPerPage),
-    });
+    })
   },
-};
+}
 
-export { truyenController };
+export { truyenController }

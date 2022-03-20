@@ -7,12 +7,12 @@ router
   .route('/page/:pageNumber')
   .get(truyenController.getTruyensByPage);
 
-router
-  .route('/start')
-  .get((_req, res) => {
-    start();
-    res.send("OK")
-  })
+// router
+//   .route('/start')
+//   .get((_req, res) => {
+//     start();
+//     res.send("OK")
+//   })
 
 router
   .route('/count')
@@ -24,6 +24,10 @@ router
 
 router
   .route('/truyen-tranh/:slug/:chapNumber')
-  .get(truyenController.getChapter)
+  .get(truyenController.getChapter);
+
+router
+  .route('/timkiem')
+  .get(truyenController.timKiemTruyen);
 
 export default router;
