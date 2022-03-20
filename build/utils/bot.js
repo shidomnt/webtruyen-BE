@@ -100,3 +100,4 @@ function updateCover() {
     });
 }
 exports.updateCover = updateCover;
+start();
