@@ -35,11 +35,16 @@ async function start() {
       await getTruyen(url, async (obj) => {
         const truyenInDb = await TruyenModel.findOne({ slug: obj.slug });
         if (!truyenInDb) {
+          console.time(`${obj.title}: Start download`)
+          console.time(obj.title)
           const truyen = new TruyenModel(obj);
           await truyen.save();
           // const truyens = collection(db, 'truyens')
           // await addDoc(truyens, obj);
-          console.log(`${obj.title}: OK`);
+          console.log(`${obj.title}: Download Success`);
+          console.timeEnd(obj.title);
+        } else {
+          console.log(`${obj.title}: Already in Database`)
         }
       });
     } catch (e) {

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import cheerioModule from 'cheerio';
-import { Truyen, Chapter, Url } from '../models';
+import { Truyen, Chapter, Url, TruyenModel } from '../models';
 
 async function getTruyen(pageUrl: Url, fn?: (obj: Truyen) => any) {
   const html = await urlToDoc(pageUrl);
@@ -37,6 +37,11 @@ async function urlToObj(
     truyenPartial: Omit<Truyen, 'chapters'>
   ) => void | Promise<void>
 ): Promise<Truyen> {
+  const slug = url.split('/').pop();
+  const truyenInDb = await TruyenModel.findOne({ slug });
+  if (truyenInDb) {
+    return truyenInDb.toObject();
+  }
   const html = await urlToDoc(url);
   const $ = cheerioModule.load(html);
   const title = $(selector.title).text();
@@ -44,7 +49,6 @@ async function urlToObj(
   const otherName = $(selector.othername).text().split(' ; ');
   const status = $(selector.status).text();
   const kind = $(selector.kind).text().split('\n')[0].split(' - ');
-  const slug = url.split('/').pop();
   const cover = `http:${$(selector.cover).attr('src')!}`;
   const detail = $(selector.detail).text();
   if (beforeDownloadChapters) {
