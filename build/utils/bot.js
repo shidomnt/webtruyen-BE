@@ -54,9 +54,15 @@ function start() {
                 yield (0, _1.getTruyen)(url, (obj) => __awaiter(this, void 0, void 0, function* () {
                     const truyenInDb = yield models_1.TruyenModel.findOne({ slug: obj.slug });
                     if (!truyenInDb) {
+                        console.time(`${obj.title}: Start download`);
+                        console.time(obj.title);
                         const truyen = new models_1.TruyenModel(obj);
                         yield truyen.save();
-                        console.log(`${obj.title}: OK`);
+                        console.log(`${obj.title}: Download Success`);
+                        console.timeEnd(obj.title);
+                    }
+                    else {
+                        console.log(`${obj.title}: Already in Database`);
                     }
                 }));
             }

@@ -19,9 +19,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.imageUrlToBase64 = exports.urlToDoc = exports.selector = exports.slugToObj = exports.urlToObj = exports.getTruyen = void 0;
+exports.removeVietnameseTones = exports.imageUrlToBase64 = exports.urlToDoc = exports.selector = exports.slugToObj = exports.urlToObj = exports.getTruyen = void 0;
 const axios_1 = __importDefault(require("axios"));
 const cheerio_1 = __importDefault(require("cheerio"));
+const models_1 = require("../models");
 function getTruyen(pageUrl, fn) {
     var e_1, _a;
     return __awaiter(this, void 0, void 0, function* () {
@@ -66,6 +67,11 @@ function urlToDoc(url) {
 exports.urlToDoc = urlToDoc;
 function urlToObj(url, beforeDownloadChapters) {
     return __awaiter(this, void 0, void 0, function* () {
+        const slug = url.split('/').pop();
+        const truyenInDb = yield models_1.TruyenModel.findOne({ slug });
+        if (truyenInDb) {
+            return truyenInDb.toObject();
+        }
         const html = yield urlToDoc(url);
         const $ = cheerio_1.default.load(html);
         const title = $(selector.title).text();
@@ -73,7 +79,6 @@ function urlToObj(url, beforeDownloadChapters) {
         const otherName = $(selector.othername).text().split(' ; ');
         const status = $(selector.status).text();
         const kind = $(selector.kind).text().split('\n')[0].split(' - ');
-        const slug = url.split('/').pop();
         const cover = `http:${$(selector.cover).attr('src')}`;
         const detail = $(selector.detail).text();
         if (beforeDownloadChapters) {
@@ -160,6 +165,29 @@ function getImages(url) {
         return result;
     });
 }
+function removeVietnameseTones(str) {
+    str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+    str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+    str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+    str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+    str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+    str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+    str = str.replace(/đ/g, "d");
+    str = str.replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ/g, "A");
+    str = str.replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, "E");
+    str = str.replace(/Ì|Í|Ị|Ỉ|Ĩ/g, "I");
+    str = str.replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, "O");
+    str = str.replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, "U");
+    str = str.replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, "Y");
+    str = str.replace(/Đ/g, "D");
+    str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, "");
+    str = str.replace(/\u02C6|\u0306|\u031B/g, "");
+    str = str.replace(/ + /g, " ");
+    str = str.trim();
+    str = str.replace(/!|@|%|\^|\*|\(|\)|\+|\=|\<|\>|\?|\/|,|\.|\:|\;|\'|\"|\&|\#|\[|\]|~|\$|_|`|-|{|}|\||\\/g, " ");
+    return str.toLowerCase().split(' ').join('');
+}
+exports.removeVietnameseTones = removeVietnameseTones;
 const selector = {
     title: '#item-detail > h1',
     author: '#item-detail > div.detail-info > div > div.col-xs-8.col-info > ul > li.author.row > p.col-xs-8',

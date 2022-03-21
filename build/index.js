@@ -36,8 +36,12 @@ const routes_1 = __importDefault(require("./routes"));
 const PORT = process.env.PORT || 4000;
 const app = (0, express_1.default)();
 app.use(express_1.default.static(path_1.default.join(__dirname, '../public')));
+app.use(express_1.default.json());
+app.use(express_1.default.urlencoded({
+    extended: true,
+}));
 app.use((0, cors_1.default)({
-    origin: 'https://elastic-kalam-a74ca7.netlify.app',
+    origin: process.env.ORIGIN || '*',
 }));
 app.use((0, morgan_1.default)('dev'));
 db.connect((e) => {

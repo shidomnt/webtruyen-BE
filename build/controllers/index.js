@@ -38,6 +38,15 @@ const truyenController = {
             res.json(truyen);
         }
     }),
+    timKiemTruyen: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const { title } = req.query;
+        let truyens = yield models_1.TruyenModel.find({}).select('title slug cover');
+        if (typeof title === 'string') {
+            truyens = truyens
+                .filter((truyen) => (0, utils_1.removeVietnameseTones)(truyen.title).includes((0, utils_1.removeVietnameseTones)(title)));
+        }
+        res.json(truyens.slice(0, 3));
+    }),
     getChapter: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
         const { slug, chapNumber } = req.params;

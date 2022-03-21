@@ -18,4 +18,7 @@ router
 router
     .route('/truyen-tranh/:slug/:chapNumber')
     .get(controllers_1.truyenController.getChapter);
+router
+    .route('/timkiem')
+    .get(controllers_1.truyenController.timKiemTruyen);
 exports.default = router;
