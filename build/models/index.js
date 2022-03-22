@@ -22,6 +22,9 @@ const SchemaTruyen = new Schema({
     cover: String,
     detail: String,
     chapters: [SchemaChapter]
+}, {
+    versionKey: false,
+    timestamps: true
 });
 const TruyenModel = mongoose_1.default.model('Truyen', SchemaTruyen);
 exports.TruyenModel = TruyenModel;
