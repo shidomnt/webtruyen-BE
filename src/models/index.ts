@@ -40,6 +40,9 @@ const SchemaTruyen = new Schema<Truyen>({
   cover: String,
   detail: String,
   chapters: [SchemaChapter]
+}, {
+  versionKey: false,
+  timestamps: true
 })
 
 const TruyenModel = mongoose.model('Truyen', SchemaTruyen);
