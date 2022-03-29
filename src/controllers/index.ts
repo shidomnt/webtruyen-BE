@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
-import axios from 'axios';
 import { TruyenModel } from '../models';
-import { imageUrlToBase64, queryTitleToObjs, removeVietnameseTones, slugToObj } from '../utils';
+import { imageUrlToBase64, queryTitleToObjs, slugToObj } from '../utils';
 
 const truyenPerPage = 8;
 
@@ -51,7 +50,7 @@ const truyenController = {
       }
     } catch (e) {
       console.log(e);
-      res.send('Err');
+      res.json([]);
     }
     // let truyens = await TruyenModel.find({}).select('title slug cover');
     // if (typeof title === 'string') {
