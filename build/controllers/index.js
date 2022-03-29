@@ -40,12 +40,19 @@ const truyenController = {
     }),
     timKiemTruyen: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { title } = req.query;
-        let truyens = yield models_1.TruyenModel.find({}).select('title slug cover');
-        if (typeof title === 'string') {
-            truyens = truyens
-                .filter((truyen) => (0, utils_1.removeVietnameseTones)(truyen.title).includes((0, utils_1.removeVietnameseTones)(title)));
+        try {
+            if (title) {
+                const resultList = yield (0, utils_1.queryTitleToObjs)({ title });
+                res.json(resultList);
+            }
+            else {
+                throw new Error('Khong co title');
+            }
         }
-        res.json(truyens.slice(0, 3));
+        catch (e) {
+            console.log(e);
+            res.json([]);
+        }
     }),
     getChapter: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         var _a;
