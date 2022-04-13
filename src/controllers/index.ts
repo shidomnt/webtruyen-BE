@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
 import { TruyenModel } from '../models';
-import { imageUrlToBase64, queryTitleToObjs, slugToObj } from '../utils';
+import { imageUrlToBase64, queryTitleToObjs, slugToObj, updateTruyen } from '../utils';
 
 const truyenPerPage = 8;
+
+let updating: Array<string> = [];
 
 const truyenController = {
   getTruyensByPage: async (req: Request, res: Response) => {
@@ -10,7 +12,7 @@ const truyenController = {
     const truyens = await TruyenModel.find({})
       .skip(
         truyenPerPage *
-          (Number(pageNumber) - 1 >= 1 ? Number(pageNumber) - 1 : 0)
+        (Number(pageNumber) - 1 >= 1 ? Number(pageNumber) - 1 : 0)
       )
       .limit(truyenPerPage)
       .select('url slug title cover');
@@ -36,6 +38,21 @@ const truyenController = {
       );
     } else {
       res.json(truyen);
+      if (truyen.updatedAt) {
+        const millisecondsDiff = (new Date()).getTime() - truyen.updatedAt.getTime();
+        const millisecondsInADay = 86400000;
+        if (millisecondsDiff < millisecondsInADay) {
+          return;
+        }
+      }
+      if (updating.includes(truyen._id.toString())) {
+        return;
+      }
+      updating.push(truyen._id.toString());
+      if (await updateTruyen(truyen)) {
+        await truyen.save();
+        updating = updating.filter((id) => id !== truyen._id.toString());
+      }
     }
   },
 
@@ -52,16 +69,6 @@ const truyenController = {
       console.log(e);
       res.json([]);
     }
-    // let truyens = await TruyenModel.find({}).select('title slug cover');
-    // if (typeof title === 'string') {
-    //   truyens = truyens
-    //     .filter((truyen) =>
-    //       removeVietnameseTones(truyen.title).includes(
-    //         removeVietnameseTones(title)
-    //       )
-    //     );
-    // }
-    // res.json(truyens.slice(0, 3));
   },
 
   getChapter: async (req: Request, res: Response) => {

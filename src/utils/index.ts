@@ -172,6 +172,19 @@ async function getImages(url: string): Promise<Array<Url>> {
   return result;
 }
 
+async function updateTruyen(truyen: Truyen) {
+  const { url } = truyen;
+  const html = await urlToDoc(url);
+  const $ = cheerioModule.load(html);
+  const chapterElements = $(selector.chapter);
+  if (chapterElements.length === truyen.chapters.length) {
+    return false;
+  }
+  const chapters = await getChapters(chapterElements);
+  truyen.chapters = chapters;
+  return true;
+}
+
 function removeVietnameseTones(str: string) {
   str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, 'a');
   str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, 'e');
@@ -227,5 +240,6 @@ export {
   urlToDoc,
   imageUrlToBase64,
   removeVietnameseTones,
-  queryTitleToObjs
+  queryTitleToObjs,
+  updateTruyen
 };

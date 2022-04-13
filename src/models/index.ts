@@ -21,6 +21,8 @@ interface Truyen {
   chapters: Array<Chapter>,
   detail?: string,
   cover: Url,
+  updatedAt?: Date,
+  createdAt?: Date
 }
 
 const SchemaChapter = new Schema<Chapter>( {
